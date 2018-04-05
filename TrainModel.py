@@ -89,15 +89,11 @@ class TrainModel:
         X,y = self.FormatInputForModel()
         print("Starting To Built Model")
         model = self.BidirectionalLSTM()
-        callbacks = [EarlyStopping(patience=4, monitor='val_loss'), \
-                     ModelCheckpoint(filepath=p.MODELS_DIR + '\checkpoint.{epoch:02d}-{val_loss:.2f}.hdf5', \
-                                     monitor='val_loss', period=2)]
         print("Training The Model")
         train = model.fit(X, y,\
                           batch_size=p.BATCH_SIZE, \
                           shuffle=True, \
-                          epochs=p.EPOCH, \
-                          callbacks=callbacks, \
+                          epochs=p.EPOCH, 
                           validation_split=p.VALIDATION)
         print("Saving The Model")
         model.save(p.MODELS_DIR + "\TrainedModel("+str(p.EPOCH)+","+str(p.RNN_LAYERS)+","+str(p.SEQUENCE_LENGTH)+")")

@@ -15,7 +15,7 @@ class GenerateText:
         predicitonE = np.exp(prediciton)
         prediciton = predicitonE / np.sum(predicitonE)
         return np.argmax(prediciton)
-
+           
     def getModel(self, path=None):
         if path == None:
             self.model = TrainModel().BuiltModel()
@@ -64,7 +64,9 @@ class GenerateText:
                     x[0,t,self.indexFromWord[word]] = 1
         
             predict = self.model.predict(x)[0]
-            nextIndex = self.pick(predict,0.4)
+            nextIndex = np.argmax(predict)
+            # nextIndex = self.pick(predict,0.4)
+            
             nextWord = self.wordFromIndex[nextIndex]
             
             output = output + "" + nextWord
