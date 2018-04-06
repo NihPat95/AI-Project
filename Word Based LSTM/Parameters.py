@@ -1,9 +1,9 @@
 import os
 # path to the dataset
 # Small piece of dataset
-# DATASET_PATH = os.path.join(os.path.dirname(__file__),"dataset\warpeace.txt")
+DATASET_PATH = os.path.join(os.path.dirname(__file__),"dataset\Game Of Throne Book 1 Prologue.txt")
 # Complete dataset
-DATASET_PATH = os.path.join(os.path.dirname(__file__),"dataset\Alice in wonderland.txt")
+# DATASET_PATH = os.path.join(os.path.dirname(__file__),"dataset\Alice in wonderland.txt")
 
 # Path to the convert input text corpus to relevant dictionary
 SAVED_DICTIONARY_PATH = os.path.join(os.path.dirname(__file__),"models\dictionary")
@@ -28,6 +28,6 @@ DROPOUT = 0.3
 LEARNING_RATE = 0.001
 
 # Parameter for running the model
-EPOCH = 10
+EPOCH = 30
 BATCH_SIZE = 32
 VALIDATION = 0.25

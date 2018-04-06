@@ -69,6 +69,9 @@ class TrainModel:
         
         print("Total Number of Sequence ", self.NUMBER_OF_SEQUENCE)
         
+        print(self.sequence)
+        print(self.nextWord)
+        
         # create matrix 
         # X[number of sequence, sequence length, unique word count]
         # y[number of sequence, unique word count]
@@ -80,6 +83,9 @@ class TrainModel:
                 X[i,t,self.indexFromWord[word]] = 1
             y[i, self.indexFromWord[self.nextWord[i]]] = 1
 
+        print (X)
+        print (y) 
+        
         return X,y
     
     def BidirectionalLSTM(self):
@@ -90,6 +96,24 @@ class TrainModel:
         model.add(Activation('softmax'))
         optimizer = Adam(lr = p.LEARNING_RATE)
         model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=[categorical_accuracy])
+        return model
+    
+    def ContinueModelTrain(self, path, epochDone):
+        with open(p.SAVED_DICTIONARY_PATH,'rb') as file:
+            self.worldList, self.wordFromIndex, self.indexFromWord = pickle.load(file)
+        print("Loaded The Dictionary")
+        print("Getting the Input For Model")
+        X,y = self.FormatInputForModel()
+        model = self.BidirectionalLSTM()
+        model.load_weights(path)
+        train = model.fit(X, y,\
+                          batch_size=p.BATCH_SIZE, \
+                          shuffle=True, \
+                          initial_epoch = epochDone, \
+                          epochs=p.EPOCH, 
+                          validation_split=p.VALIDATION)
+        print("Saving The Model")
+        model.save(p.MODELS_DIR + "\TrainedModel("+str(p.EPOCH)+","+str(p.RNN_LAYERS)+","+str(p.SEQUENCE_LENGTH)+")")
         return model
     
     def BuiltModel(self):

@@ -30,10 +30,13 @@ class GenerateText:
         
         print("Loaded The Dictionary")
         
-    def getText(self, textLength, inputSentence, path=None):
+    def getText(self, textLength, inputSentence, path=None, model=None):
         
         if self.loadedNecessary == False:
-            self.getModel(path)
+            if model != None:
+                self.model = model 
+            else:
+                self.getModel(path)
             self.getDictionary()
             self.loadedNecessary = True
         
