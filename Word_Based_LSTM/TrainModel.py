@@ -83,9 +83,6 @@ class TrainModel:
                 X[i,t,self.indexFromWord[word]] = 1
             y[i, self.indexFromWord[self.nextWord[i]]] = 1
 
-        print (X)
-        print (y) 
-        
         return X,y
     
     def BidirectionalLSTM(self):
