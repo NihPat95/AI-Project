@@ -1,12 +1,12 @@
 import os
 # path to the dataset
 # Small piece of dataset
-DATASET_PATH = os.path.join(os.path.dirname(__file__),"dataset\Alice_in_wonderland.txt")
+DATASET_PATH = os.path.join(os.path.dirname(__file__),"dataset/Alice_in_wonderland.txt")
 # Complete dataset
 # DATASET_PATH = os.path.join(os.path.dirname(__file__),"dataset\Alice in wonderland.txt")
 
 # Path to the convert input text corpus to relevant dictionary
-SAVED_DICTIONARY_PATH = os.path.join(os.path.dirname(__file__),"models\dictionary")
+SAVED_DICTIONARY_PATH = os.path.join(os.path.dirname(__file__),"models/dictionary")
 
 # Path to model directory
 MODELS_DIR = os.path.join(os.path.dirname(__file__),"models")

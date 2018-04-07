@@ -10,7 +10,7 @@ textLength = 10
 path = None 
 
 path = os.path.join(os.path.dirname(__file__),"models/TrainedModel(5,500,10)")
-m = TrainModel().ContinueModelTrain(path, 1)
+m = TrainModel().ContinueModelTrain(path, 5)
 
 obj = GenerateText()
 text = obj.getText(textLength, sentence, path=None, model=m)
