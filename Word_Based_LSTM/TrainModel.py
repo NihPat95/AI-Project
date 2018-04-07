@@ -69,8 +69,8 @@ class TrainModel:
         
         print("Total Number of Sequence ", self.NUMBER_OF_SEQUENCE)
         
-        print(self.sequence)
-        print(self.nextWord)
+#        print(self.sequence)
+ #       print(self.nextWord)
         
         # create matrix 
         # X[number of sequence, sequence length, unique word count]
