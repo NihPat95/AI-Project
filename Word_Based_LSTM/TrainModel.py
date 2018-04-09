@@ -69,8 +69,8 @@ class TrainModel:
         
         print("Total Number of Sequence ", self.NUMBER_OF_SEQUENCE)
         
-        print(self.sequence)
-        print(self.nextWord)
+#        print(self.sequence)
+ #       print(self.nextWord)
         
         # create matrix 
         # X[number of sequence, sequence length, unique word count]
@@ -83,9 +83,6 @@ class TrainModel:
                 X[i,t,self.indexFromWord[word]] = 1
             y[i, self.indexFromWord[self.nextWord[i]]] = 1
 
-        print (X)
-        print (y) 
-        
         return X,y
     
     def BidirectionalLSTM(self):
