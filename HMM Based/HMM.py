@@ -16,27 +16,26 @@ from unidecode import unidecode
 from nltk import sent_tokenize
 
 
-# In[ ]:
+# In[128]:
 
 
-filename = "dataset/GOT.txt"
-
+filename = "dataset/test.txt"
+word_split_pattern = re.compile(r"\s+")
 sequenceLength = 2
 BEGIN = "___BEGIN__"
 END = "___END__"
 
 
-# In[ ]:
+# In[129]:
 
 
 wordList = []
 tempMapping = {}
-mapping = {}
 begin_cumdist= None
 begin_choices = None
 
 
-# In[ ]:
+# In[130]:
 
 
 def sentence_split(text):
@@ -48,22 +47,20 @@ def sentence_split(text):
     dot_iter = re.finditer(potential_end_pat, text)
     end_indices = [ (x.start() + len(x.group(1)) + len(x.group(2)))
         for x in dot_iter]
-        #if is_sentence_ender(x.group(1)) ]
     spans = zip([None] + end_indices, end_indices + [None])
     sentences = [ text[start:end].strip() for start, end in spans ]
+
     return sentences
 
 
-# In[ ]:
+# In[131]:
 
 
-
-word_split_pattern = re.compile(r"\s+")
 def word_split(sentence):
     return re.split(word_split_pattern, sentence)
 
 
-# In[ ]:
+# In[132]:
 
 
 def test_sentence_input(sentence):
@@ -75,12 +72,12 @@ def test_sentence_input(sentence):
     else: # pragma: no cover
         decoded = unidecode(sentence)
     # Sentence shouldn't contain problematic characters
-    if re.search(reject_pat, decoded): 
+    if re.search(reject_pat, decoded):
         return False
     return True
 
 
-# In[ ]:
+# In[133]:
 
 
 def generate_corpus(text):
@@ -90,35 +87,38 @@ def generate_corpus(text):
         sentences = []
         for line in text:
             sentences += sentence_split(line)
+
     passing = filter(test_sentence_input, sentences)
-    
-    runs = map(word_split, passing)
-    print(len(runs))
-    return runs
+
+    sentences = map(word_split, passing)
+
+    return sentences
 
 
-# In[ ]:
+# In[134]:
 
 
 with io.open(filename, 'r', encoding="utf8") as f:
     rawText = f.read().lower()
 
 sentence_list = sent_tokenize(rawText)
+print("Total number of sentences in the corpus: ",len(sentence_list))
+
+
+# In[135]:
+
 
 wordList = generate_corpus(sentence_list)
-print(len(wordList))
 
 
-# In[ ]:
+# In[136]:
 
 
 def build():
     print(len(wordList))
-    for run in wordList:
-        #print("run",run)
-        items = ([ BEGIN ] * sequenceLength) + run + [ END ]
-        print(items)
-        for i in range(len(run) + 1):
+    for sentence in wordList:
+        items = ([ BEGIN ] * sequenceLength) + sentence + [ END ]
+        for i in range(len(sentence) + 1):
             state = tuple(items[i:i+sequenceLength])
             follow = items[i+sequenceLength]
             if state not in tempMapping:
@@ -127,12 +127,12 @@ def build():
                 tempMapping[state][follow] = 0
 
             tempMapping[state][follow] += 1
-    return tempMapping    
-build() 
+    return tempMapping
+build()
 #print(tempMapping)
 
 
-# In[ ]:
+# In[137]:
 
 
 def accumulate(iterable, func=operator.add):
@@ -148,44 +148,23 @@ def accumulate(iterable, func=operator.add):
         yield total
 
 
-# In[ ]:
-
-
-#def precompute_begin_state():
-#print(tempMapping)
-begin_state = tuple([ BEGIN ] * sequenceLength)
-#print("begin state",begin_state)
-#print(tempMapping)
-choices, weights = zip(*tempMapping[begin_state].items())
-#print("choices",choices)
-#print("weights",weights)
-cumdist = list(accumulate(weights))
-#print("cumdist",cumdist)
-begin_cumdist = cumdist
-begin_choices = choices
-#print("$$$$",begin_cumdist)
-#precompute_begin_state()
-
-
-# In[ ]:
+# In[138]:
 
 
 def move(state):
-    if state == tuple([ BEGIN ] * sequenceLength):
-       # print("if")
-        choices = begin_choices
-        cumdist = begin_cumdist
+    if state == tuple([BEGIN]* sequenceLength):
+        begin_state = tuple([ BEGIN ] * sequenceLength)
+        choices, weights = zip(*tempMapping[begin_state].items())
+
     else:
         choices, weights = zip(*tempMapping[state].items())
-        cumdist = list(accumulate(weights))
-    #print(cumdist)
+    cumdist = list(accumulate(weights))
     r = random.random() * cumdist[-1]
     selection = choices[bisect.bisect(cumdist, r)]
     return selection
-#move((BEGIN,) * sequenceLength)
 
 
-# In[ ]:
+# In[139]:
 
 
 def gen(init_state=None):
@@ -196,9 +175,13 @@ def gen(init_state=None):
         #print("next word",next_word)
         yield next_word
         state = tuple(state[1:]) + (next_word,)
+
+# prefix="we have"
+# op = gen(tuple([x for x in prefix.split(" ")]))
+# result=prefix + " "
 op = gen(None)
-result=" "
+result=""
+
 for w in op:
     result = result + w + " "
 print(result)
-
