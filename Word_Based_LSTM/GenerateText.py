@@ -7,24 +7,18 @@ import pickle
 
 class GenerateText:
     
-    loadedNecessary = False
-    
-    def pick(self, prediciton, threshold=1.0):
-        prediciton = np.asarray(prediciton).astype('float64') 
-        prediciton = np.log(prediciton) / threshold
-        predicitonE = np.exp(prediciton)
-        prediciton = predicitonE / np.sum(predicitonE)
-        return np.argmax(prediciton)
-           
     def getModel(self, path=None):
+        # train the model from scratch
         if path == None:
             self.model = TrainModel().BuiltModel()
         else:
+        # load the model from the path given
             self.model = load_model(path)
         
         print("Model Loaded")
         
     def getDictionary(self):
+        # load the dictionary
         with open(p.SAVED_DICTIONARY_PATH,'rb') as file:
             self.worldList, self.wordFromIndex, self.indexFromWord = pickle.load(file)
         
@@ -32,18 +26,21 @@ class GenerateText:
         
     def getText(self, textLength, inputSentence, path=None, model=None):
         
-        if self.loadedNecessary == False:
-            if model != None:
-                self.model = model 
-            else:
-                self.getModel(path)
-            self.getDictionary()
-            self.loadedNecessary = True
+        if model != None:
+            self.model = model 
+        else:
+            self.getModel(path)
+        self.getDictionary()
+        self.loadedNecessary = True
+        
         
         inputSentence = inputSentence.lower()
         sentence = []
+        # tokenize the given input sentence
         sentence = word_tokenize(inputSentence)
         
+        # if the length of the sentence is less than the SEQUENCE_LENGTH 
+        # ignore the given sentence
         if(len(sentence) < p.SEQUENCE_LENGTH):
             print("Give A Long Input Sentence Of Size Atleast " , p.SEQUENCE_LENGTH)
             return ""
@@ -62,14 +59,18 @@ class GenerateText:
         output = inputSentence
         
         for i in range(textLength):
+            # format the single sequence to get the next character
             x = np.zeros((1, p.SEQUENCE_LENGTH, len(self.indexFromWord)))
             for t, word in enumerate(sentence):
                     x[0,t,self.indexFromWord[word]] = 1
         
+            # get prediction matrix for the next character
             predict = self.model.predict(x)[0]
-            nextIndex = np.argmax(predict)
-            # nextIndex = self.pick(predict,0.4)
             
+            # pick the index of the next word with maximum prediction
+            nextIndex = np.argmax(predict)
+            
+            # get the actual word from the index
             nextWord = self.wordFromIndex[nextIndex]
             
             output = output + " " + nextWord

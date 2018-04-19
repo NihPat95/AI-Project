@@ -22,23 +22,17 @@ class TrainModel:
         # get a list of all the words from the data set file
         self.wordList = word_tokenize(rawData)
         
-        print(self.wordList)
-        
         # get the list of unique words 
         self.uniqueWords = Counter(self.wordList)
         
-        print(self.uniqueWords)
         
         # create a dictionary with dict[index] -> word
-        
         self.wordFromIndex = [x for x in self.uniqueWords]
         
-        print(self.wordFromIndex)
         
         # create a dictionary with dict[word] -> index
         self.indexFromWord = {x: i for i,x in enumerate(self.uniqueWords)}
         
-        print(self.indexFromWord)
         
         self.TOTAL_WORDS = len(self.wordList)
         self.UNIQUE_WORD_COUNT = len(self.wordFromIndex)
@@ -60,6 +54,8 @@ class TrainModel:
         # list of next word for the sequence in self.sequence
         self.nextWord = []
         
+        # generate for mapping for a sequence of SEQUENCE_LENGTH words
+        # followed by the next word as two list
         for i in range(0, self.TOTAL_WORDS - p.SEQUENCE_LENGTH, p.SKIP):
             self.sequence.append(self.wordList[i: i+p.SEQUENCE_LENGTH])
             self.nextWord.append(self.wordList[i+p.SEQUENCE_LENGTH])
@@ -69,11 +65,10 @@ class TrainModel:
         
         print("Total Number of Sequence ", self.NUMBER_OF_SEQUENCE)
         
-#        print(self.sequence)
- #       print(self.nextWord)
-        
         # create matrix 
+        # the input data sequence of words
         # X[number of sequence, sequence length, unique word count]
+        # the label that is the next word for that particular sequence
         # y[number of sequence, unique word count]
         
         X = np.zeros((self.NUMBER_OF_SEQUENCE, p.SEQUENCE_LENGTH, self.UNIQUE_WORD_COUNT), dtype=np.bool)
@@ -86,6 +81,9 @@ class TrainModel:
         return X,y
     
     def BidirectionalLSTM(self):
+        # Build the neural network with the following configurations
+        # A bidirectional RNN network with LSTM cells
+        # with a dropout and an activation layer of softmax and rectified units
         model = Sequential()
         model.add(Bidirectional(LSTM(p.RNN_LAYERS, activation=p.ACTIVATION), input_shape=(p.SEQUENCE_LENGTH, self.UNIQUE_WORD_COUNT)))
         model.add(Dropout(p.DROPOUT))
@@ -96,6 +94,9 @@ class TrainModel:
         return model
     
     def ContinueModelTrain(self, path, epochDone):
+        # continue the training of a checkpoint model from the 
+        # epochDone, make sure that the model and dictionary 
+        # corresponds to the same parameters and the text dataset
         with open(p.SAVED_DICTIONARY_PATH,'rb') as file:
             self.worldList, self.wordFromIndex, self.indexFromWord = pickle.load(file)
         print("Loaded The Dictionary")

@@ -1,9 +1,6 @@
 import os
 # path to the dataset
-# Small piece of dataset
-DATASET_PATH = os.path.join(os.path.dirname(__file__),"dataset/Alice_in_wonderland.txt")
-# Complete dataset
-# DATASET_PATH = os.path.join(os.path.dirname(__file__),"dataset\Alice in wonderland.txt")
+DATASET_PATH = "path to dataset"
 
 # Path to the convert input text corpus to relevant dictionary
 SAVED_DICTIONARY_PATH = os.path.join(os.path.dirname(__file__),"models/dictionary")
@@ -27,7 +24,11 @@ DROPOUT = 0.3
 # Learning rate for the network
 LEARNING_RATE = 0.001
 
-# Parameter for running the model
+# Number of Epoch for the model to run
 EPOCH = 50
+
+# the batch size of the input data given to the neural network
 BATCH_SIZE = 32
+
+# the percentage of the data to be used as a validation metrics
 VALIDATION = 0.25
