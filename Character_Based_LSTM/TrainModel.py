@@ -1,5 +1,5 @@
 import Parameters as p
-from nltk import word_tokenize
+from nltk import character_tokenize
 from collections import Counter
 import pickle
 import numpy as np
@@ -19,29 +19,27 @@ class TrainModel:
             # read the complete file and convert to lowercase
             rawData = file.read().lower()
         
-        # get a list of all the words from the data set file
-        self.wordList = list(rawData) 
+        # get a list of all the characters from the data set file
+        self.characterList = list(rawData) 
         
-        # get the list of unique words 
-        self.uniqueWords = Counter(self.wordList)
+        # get the list of unique characters 
+        self.uniqueCharacters = Counter(self.characterList)
         
-        # create a dictionary with dict[index] -> word
-        # self.wordFromIndex = [x for x in self.uniqueWords]
+        # create a dictionary with dict[index] -> character
+        self.characterFromIndex = [x for x in self.uniqueCharacters]
         
-        self.wordFromIndex = [x for x in self.uniqueWords]
+        # create a dictionary with dict[character] -> index
+        self.indexFromCharacter = {x: i for i,x in enumerate(self.uniqueCharacters)}
         
-        # create a dictionary with dict[word] -> index
-        self.indexFromWord = {x: i for i,x in enumerate(self.uniqueWords)}
+        self.TOTAL_CHARACTERS = len(self.characterList)
+        self.UNIQUE_CHARACTER_COUNT = len(self.characterFromIndex)
         
-        self.TOTAL_WORDS = len(self.wordList)
-        self.UNIQUE_WORD_COUNT = len(self.wordFromIndex)
+        print("Total characters in Corpus ", self.TOTAL_CHARACTERS)
+        print("Number of Unique characters ", self.UNIQUE_CHARACTER_COUNT)
         
-        print("Total Words in Corpus ", self.TOTAL_WORDS)
-        print("Number of Unique Words ", self.UNIQUE_WORD_COUNT)
-        
-        # save the dictionary and word list
+        # save the dictionary and character list
         with open(p.SAVED_DICTIONARY_PATH,'wb') as file:
-            pickle.dump((self.wordList,self.wordFromIndex,self.indexFromWord), file)
+            pickle.dump((self.characterList,self.characterFromIndex,self.indexFromCharacter), file)
     
     def FormatInputForModel(self):
         
@@ -49,12 +47,14 @@ class TrainModel:
         
         # list of sequences 
         self.sequence = []
-        # list of next word for the sequence in self.sequence
-        self.nextWord = []
+        # list of next character for the sequence in self.sequence
+        self.nextcharacter = []
         
-        for i in range(0, self.TOTAL_WORDS - p.SEQUENCE_LENGTH, p.SKIP):
-            self.sequence.append(self.wordList[i: i+p.SEQUENCE_LENGTH])
-            self.nextWord.append(self.wordList[i+p.SEQUENCE_LENGTH])
+        # for each sequence of p.SEQUENCE_LENGTH characters in the dataset
+        # set the next character to be the character that follow p.SEQUENCE_LENGHT characters
+        for i in range(0, self.TOTAL_CHARACTERS - p.SEQUENCE_LENGTH, p.SKIP):
+            self.sequence.append(self.characterList[i: i+p.SEQUENCE_LENGTH])
+            self.nextcharacter.append(self.characterList[i+p.SEQUENCE_LENGTH])
         
         # set the total number of sequence
         self.NUMBER_OF_SEQUENCE = len(self.sequence)
@@ -62,23 +62,26 @@ class TrainModel:
         print("Total Number of Sequence ", self.NUMBER_OF_SEQUENCE)
         
         # create matrix 
-        # X[number of sequence, sequence length, unique word count]
-        # y[number of sequence, unique word count]
-        
-        X = np.zeros((self.NUMBER_OF_SEQUENCE, p.SEQUENCE_LENGTH, self.UNIQUE_WORD_COUNT), dtype=np.bool)
-        y = np.zeros((self.NUMBER_OF_SEQUENCE, self.UNIQUE_WORD_COUNT), dtype=np.bool)
+        # Input Sequence Data
+        # X[number of sequence, sequence length, unique character count]
+        # Corresponding Label Data that is essentially the next character
+        # y[number of sequence, unique character count]
+        X = np.zeros((self.NUMBER_OF_SEQUENCE, p.SEQUENCE_LENGTH, self.UNIQUE_CHARACTER_COUNT), dtype=np.bool)
+        y = np.zeros((self.NUMBER_OF_SEQUENCE, self.UNIQUE_CHARACTER_COUNT), dtype=np.bool)
         for i, sentence in enumerate(self.sequence):
-            for t, word in enumerate(sentence):
-                X[i,t,self.indexFromWord[word]] = 1
-            y[i, self.indexFromWord[self.nextWord[i]]] = 1
-
+            for t, character in enumerate(sentence):
+                X[i,t,self.indexFromCharacter[character]] = 1
+            y[i, self.indexFromCharacter[self.nextCharacter[i]]] = 1
         return X,y
     
     def BidirectionalLSTM(self):
+        # Build the neural network with the following configurations
+        # A bidirectional RNN network with LSTM cells
+        # with a dropout and an activation layer of softmax and rectified units
         model = Sequential()
-        model.add(Bidirectional(LSTM(p.RNN_LAYERS, activation=p.ACTIVATION), input_shape=(p.SEQUENCE_LENGTH, self.UNIQUE_WORD_COUNT)))
+        model.add(Bidirectional(LSTM(p.RNN_LAYERS, activation=p.ACTIVATION), input_shape=(p.SEQUENCE_LENGTH, self.UNIQUE_CHARACTER_COUNT)))
         model.add(Dropout(p.DROPOUT))
-        model.add(Dense(self.UNIQUE_WORD_COUNT))
+        model.add(Dense(self.UNIQUE_CHARACTER_COUNT))
         model.add(Activation('softmax'))
         optimizer = Adam(lr = p.LEARNING_RATE)
         model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=[categorical_accuracy])
@@ -89,7 +92,7 @@ class TrainModel:
         X,y = self.FormatInputForModel()
         print("Starting To Built Model")
         model = self.BidirectionalLSTM()
-        print("Training The Model")
+        print("Training The Model") 
         train = model.fit(X, y,\
                           batch_size=p.BATCH_SIZE, \
                           shuffle=True, \
