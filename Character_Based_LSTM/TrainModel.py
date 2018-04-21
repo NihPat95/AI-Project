@@ -1,5 +1,5 @@
 import Parameters as p
-from nltk import character_tokenize
+from nltk import word_tokenize
 from collections import Counter
 import pickle
 import numpy as np
@@ -48,13 +48,13 @@ class TrainModel:
         # list of sequences 
         self.sequence = []
         # list of next character for the sequence in self.sequence
-        self.nextcharacter = []
+        self.nextCharacter = []
         
         # for each sequence of p.SEQUENCE_LENGTH characters in the dataset
         # set the next character to be the character that follow p.SEQUENCE_LENGHT characters
         for i in range(0, self.TOTAL_CHARACTERS - p.SEQUENCE_LENGTH, p.SKIP):
             self.sequence.append(self.characterList[i: i+p.SEQUENCE_LENGTH])
-            self.nextcharacter.append(self.characterList[i+p.SEQUENCE_LENGTH])
+            self.nextCharacter.append(self.characterList[i + p.SEQUENCE_LENGTH])
         
         # set the total number of sequence
         self.NUMBER_OF_SEQUENCE = len(self.sequence)

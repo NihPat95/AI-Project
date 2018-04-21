@@ -1,5 +1,5 @@
 import numpy as np
-from nltk.tokenize import sent_tokenize, character_tokenize
+from nltk.tokenize import sent_tokenize, word_tokenize
 from keras.models import load_model
 from TrainModel import TrainModel
 import Parameters as p
