@@ -13,7 +13,8 @@ To run this model execute the below file :
 Modify the below variables in above mentioned file:  
 * filename = <provide the path of input file / text corpus>  
 * sequenceLength =<positive Integer value to specify the sequence length (before the generated text) to consider>  
-* ```python
+* 
+```python
 op = gen( <provide the seed text or none> )  
 ```
 
