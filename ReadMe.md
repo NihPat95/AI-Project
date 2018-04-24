@@ -15,6 +15,7 @@ Modify the below variables in above mentioned file:
 * sequenceLength =<positive Integer value to specify the sequence length (before the generated text) to consider>  
 ```python
 * op = gen( <provide the seed text or none> )  
+```
 
 ## Randomized model
 
