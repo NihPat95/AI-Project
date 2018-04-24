@@ -1,9 +1,9 @@
 # Text Generation Model
 
 This project includes three models for text generation:  
-	1. Markov model
-	2. Randomized model
-	3. Recurrent neural network model (LSTM)
+	1. Markov model  
+	2. Randomized model\
+	3. Recurrent neural network model (LSTM)\
 
 ## Markov model
 To run this model consider the below file as main file to execute:  
